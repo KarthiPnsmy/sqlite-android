@@ -10,21 +10,25 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends Activity {
-
+	
+	LazyAdapter adapter;
+	ListView lv;
+	DatabaseHandler db; 
+	
+	public MainActivity() {
+		db = new DatabaseHandler(this);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		final DatabaseHandler db = new DatabaseHandler(this);
 		Button addBtn = (Button) findViewById(R.id.addBtn);
 
 		addBtn.setOnClickListener(new View.OnClickListener() {
@@ -41,17 +45,15 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		ListView lv = (ListView) findViewById(R.id.user_list);
+		lv = (ListView) findViewById(R.id.user_list);
 		
         lv.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// TODO Auto-generated method stub
+				/*
 				String userId = ((TextView) view.findViewById(R.id.userId)).getText().toString();
-				//Log.i("userId", userId);
-				//Log.i("userId", "position = "+position);
-				//Log.i("id", "id = "+id);
 				
 				Intent i = new Intent(getApplicationContext(), AddAddress.class);
 				i.putExtra("type", "edit");
@@ -59,17 +61,9 @@ public class MainActivity extends Activity {
 				startActivity(i);
 				
 				Toast.makeText(getApplicationContext(), "userId = "+userId, Toast.LENGTH_SHORT).show();
+				*/
 			}
 		});
-        /*
-		Log.d("getUserObjList","db.getUserObjList() = "+db.getUserObjList().toString());
-		ListAdapter adapter = new SimpleAdapter(
-				this, db.getUserObjList(),
-				R.layout.user_info, new String[] { DatabaseHandler.KEY_ID, DatabaseHandler.KEY_NAME, DatabaseHandler.KEY_PH_NO, DatabaseHandler.KEY_ADDRESS }, new int[] {R.id.userId, R.id.userName, R.id.userPhNo, R.id.userAddress });
-
-		lv.setAdapter(adapter);
-		db.close();
-		*/
 	}
 
 	@Override
@@ -80,20 +74,19 @@ public class MainActivity extends Activity {
 	}
 	
 	public void refreshList(){
-		DatabaseHandler db = new DatabaseHandler(this);
 		ListView lv = (ListView) findViewById(R.id.user_list);
+		/*
 		ListAdapter adapter = new SimpleAdapter(
 				this, db.getUserObjList(),
 				R.layout.user_info, new String[] { DatabaseHandler.KEY_ID, DatabaseHandler.KEY_NAME, DatabaseHandler.KEY_PH_NO, DatabaseHandler.KEY_ADDRESS }, new int[] {R.id.userId, R.id.userName, R.id.userPhNo, R.id.userAddress });
-
+		*/
+		LazyAdapter adapter = new LazyAdapter(getApplicationContext(), lv, MainActivity.this, db.getUserObjList());  
 		lv.setAdapter(adapter);
-		db.close();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d("onResume","onResume called");
 		refreshList();
 	}
 }
